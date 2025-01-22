@@ -1,5 +1,7 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Event } from 'src/events/entities/event.entity';
+import { Guest } from 'src/guests/entities/guest.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @ObjectType()
 @Entity({ name: 'users' })
@@ -20,7 +22,6 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Field(() => String)
   @Column()
   password: string;
 
@@ -35,6 +36,14 @@ export class User {
   @Field(() => Boolean)
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
+
+  @Field(() => [Event], { defaultValue: [] })
+  @OneToMany(() => Event, (event) => event.createdBy, { eager: true })
+  eventsCreated: Event[];
+
+  @Field(() => [Guest])
+  @OneToMany(() => Guest, (guest) => guest.createdBy)
+  guests: Guest[];
 
   @Field(() => Date)
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

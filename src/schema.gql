@@ -2,21 +2,21 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Event {
-  """Example field (placeholder)"""
-  exampleField: Int!
+type Invitation {
+  id: ID!
+  event: Event!
+  guest: Guest!
+  invitationStatus: InvitationStatus!
+  expirationDate: DateTime
+  qrCodeUrl: String!
+  confirmationUrl: String!
+  createdAt: DateTime!
 }
 
-type User {
-  id: ID!
-  firstName: String!
-  lastName: String!
-  email: String!
-  password: String!
-  roles: [String!]!
-  isActive: Boolean!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 """
@@ -24,11 +24,61 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type Guest {
+  id: ID!
+  name: String!
+  email: String
+  phoneNumber: String
+  invitations: [Invitation!]!
+  createdBy: User!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type User {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  roles: [String!]!
+  isActive: Boolean!
+  eventsCreated: [Event!]!
+  guests: [Guest!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Event {
+  id: ID!
+  name: String!
+  description: String!
+  type: EventType!
+  location: String
+  url: String
+  startDate: DateTime!
+  endDate: DateTime!
+  createdBy: User!
+  invitations: [Invitation!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum EventType {
+  VIRTUAL
+  IN_PERSON
+  HYBRID
+}
+
 type Query {
-  events: [Event!]!
-  event(id: Int!): Event!
+  events(eventType: EventType): [Event!]!
+  eventsByUser(eventType: EventType): [Event!]!
+  event(id: ID!): Event!
   users(roles: [ValidRoles!] = []): [User!]!
   user(id: ID!): User!
+  guests: [Guest!]!
+  guest(id: Int!): Guest!
+  invitations: [Invitation!]!
+  invitation(id: ID!): Invitation!
 }
 
 enum ValidRoles {
@@ -39,20 +89,36 @@ enum ValidRoles {
 type Mutation {
   createEvent(createEventInput: CreateEventInput!): Event!
   updateEvent(updateEventInput: UpdateEventInput!): Event!
-  removeEvent(id: Int!): Event!
   updateUser(updateUserInput: UpdateUserInput!): User!
   blockUser(id: ID!): User!
+  createGuest(createGuestInput: CreateGuestInput!): Guest!
+  updateGuest(updateGuestInput: UpdateGuestInput!): Guest!
+  removeGuest(id: Int!): Guest!
+  createInvitation(createInvitationInput: CreateInvitationInput!): Invitation!
+  addGuestToInvitation(guestsId: [ID!]!): Invitation!
+  updateInvitation(updateInvitationInput: UpdateInvitationInput!): Invitation!
+  removeInvitation(id: ID!): Invitation!
 }
 
 input CreateEventInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  name: String!
+  description: String
+  type: EventType!
+  location: String
+  url: String
+  startDate: DateTime!
+  endDate: DateTime!
 }
 
 input UpdateEventInput {
-  """Example field (placeholder)"""
-  exampleField: Int
-  id: Int!
+  name: String
+  description: String
+  type: EventType
+  location: String
+  url: String
+  startDate: DateTime
+  endDate: DateTime
+  id: ID!
 }
 
 input UpdateUserInput {
@@ -63,4 +129,30 @@ input UpdateUserInput {
   id: ID!
   roles: [ValidRoles!]
   isActive: Boolean
+}
+
+input CreateGuestInput {
+  """Name of the guest"""
+  name: String!
+  email: String
+  phoneNumber: String
+}
+
+input UpdateGuestInput {
+  """Name of the guest"""
+  name: String
+  email: String
+  phoneNumber: String
+  id: Int!
+}
+
+input CreateInvitationInput {
+  eventId: String!
+  guestId: String!
+}
+
+input UpdateInvitationInput {
+  eventId: String
+  guestId: String
+  id: ID!
 }

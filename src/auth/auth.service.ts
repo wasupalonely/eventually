@@ -27,6 +27,8 @@ export class AuthService {
 
     const token = this.getJWTToken(user.id);
 
+    delete user.password;
+
     return { token, user };
   }
 
@@ -38,6 +40,9 @@ export class AuthService {
     }
 
     const token = this.getJWTToken(user.id);
+
+    delete user.password;
+
     return { user, token };
   }
 

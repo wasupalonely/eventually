@@ -1,15 +1,23 @@
+import { UseGuards } from '@nestjs/common';
 import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { UpdateUserInput } from './dto/inputs';
 import { ValidRolesArgs } from './dto/args/roles.arg';
+import { GqlAuthGuard } from 'src/shared/guards/gql-auth.guard';
+import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
+import { GqlCurrentUser } from 'src/shared/decorators/gql-current-user.decorator';
 
 @Resolver(() => User)
+@UseGuards(GqlAuthGuard)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Query(() => [User], { name: 'users' })
-  findAll(@Args() validRoles: ValidRolesArgs) {
+  findAll(
+    @GqlCurrentUser([ValidRoles.admin]) _: User,
+    @Args() validRoles: ValidRolesArgs,
+  ) {
     return this.usersService.findAll(validRoles.roles);
   }
 
@@ -24,7 +32,10 @@ export class UsersResolver {
   }
 
   @Mutation(() => User, { name: 'blockUser' })
-  blockUser(@Args('id', { type: () => ID }) id: string) {
+  blockUser(
+    @GqlCurrentUser([ValidRoles.admin]) _: User,
+    @Args('id', { type: () => ID }) id: string,
+  ) {
     return this.usersService.block(id);
   }
 }
