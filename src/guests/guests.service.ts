@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateGuestInput } from './dto/create-guest.input';
 import { UpdateGuestInput } from './dto/update-guest.input';
@@ -47,23 +48,61 @@ export class GuestsService {
     }
   }
 
-  findAll() {
-    return `This action returns all guests`;
+  async findAll() {
+    try {
+      return await this.guestRepository.find();
+    } catch (error) {
+      this.handleDbErrors(error);
+    }
+  }
+
+  async findAllByUser(user: User): Promise<Guest[]> {
+    try {
+      return await this.guestRepository.find({
+        where: { createdBy: { id: user.id } },
+        relations: ['createdBy', 'invitations'],
+      });
+    } catch (error) {
+      this.handleDbErrors(error);
+    }
   }
 
   async findByIds(ids: string[]): Promise<Guest[]> {
     return await this.guestRepository.findBy({ id: In(ids) });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} guest`;
+  async findOne(id: string) {
+    const guest = await this.guestRepository.findOneBy({ id });
+
+    if (!guest) {
+      throw new NotFoundException('Guest not found');
+    }
+
+    return guest;
   }
 
-  update(id: number, updateGuestInput: UpdateGuestInput) {
-    return `This action updates a #${id} guest`;
+  async update(id: string, updateGuestInput: UpdateGuestInput) {
+    try {
+      const updatedGuest = await this.guestRepository.preload({
+        id: id,
+        ...updateGuestInput,
+      });
+
+      if (!updatedGuest) {
+        throw new NotFoundException(`Guest with ID ${id} not found`);
+      }
+
+      const event = await this.guestRepository.save(updatedGuest);
+      return await this.guestRepository.findOne({
+        where: { id: event.id },
+        relations: ['createdBy', 'invitations'],
+      });
+    } catch (error) {
+      this.handleDbErrors(error);
+    }
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} guest`;
   }
 

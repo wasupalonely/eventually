@@ -76,8 +76,9 @@ type Query {
   users(roles: [ValidRoles!] = []): [User!]!
   user(id: ID!): User!
   guests: [Guest!]!
-  guest(id: Int!): Guest!
-  invitations: [Invitation!]!
+  myGuests: [Guest!]!
+  guest(id: ID!): Guest!
+  invitations(id: ID): [Invitation!]!
   invitation(id: ID!): Invitation!
 }
 
@@ -93,9 +94,8 @@ type Mutation {
   blockUser(id: ID!): User!
   createGuest(createGuestInput: CreateGuestInput!): Guest!
   updateGuest(updateGuestInput: UpdateGuestInput!): Guest!
-  removeGuest(id: Int!): Guest!
+  removeGuest(id: ID!): Guest!
   createInvitation(createInvitationInput: CreateInvitationInput!): Invitation!
-  addGuestToInvitation(guestsId: [ID!]!): Invitation!
   updateInvitation(updateInvitationInput: UpdateInvitationInput!): Invitation!
   removeInvitation(id: ID!): Invitation!
 }
@@ -143,7 +143,7 @@ input UpdateGuestInput {
   name: String
   email: String
   phoneNumber: String
-  id: Int!
+  id: ID!
 }
 
 input CreateInvitationInput {

@@ -10,6 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { GuestsModule } from './guests/guests.module';
 import { InvitationsModule } from './invitations/invitations.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   providers: [],
@@ -41,6 +42,7 @@ import { InvitationsModule } from './invitations/invitations.module';
     UsersModule,
     GuestsModule,
     InvitationsModule,
+    NotificationsModule,
   ],
   controllers: [],
 })

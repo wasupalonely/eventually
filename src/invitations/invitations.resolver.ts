@@ -2,8 +2,11 @@ import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { InvitationsService } from './invitations.service';
 import { Invitation } from './entities/invitation.entity';
 import { CreateInvitationInput, UpdateInvitationInput } from './dto/inputs';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { GqlAuthGuard } from 'src/shared/guards/gql-auth.guard';
 
 @Resolver(() => Invitation)
+@UseGuards(GqlAuthGuard)
 export class InvitationsResolver {
   constructor(private readonly invitationsService: InvitationsService) {}
 
@@ -14,16 +17,12 @@ export class InvitationsResolver {
     return this.invitationsService.create(createInvitationInput);
   }
 
-  @Mutation(() => Invitation)
-  addGuestToInvitation(
-    @Args('guestsId', { type: () => [ID] }) guestsId: string[],
-  ) {
-    return 'This action adds a new guest to an invitation';
-  }
-
   @Query(() => [Invitation], { name: 'invitations' })
-  findAll() {
-    return this.invitationsService.findAll();
+  findAll(
+    @Args('id', { type: () => ID, nullable: true }, ParseUUIDPipe)
+    eventId?: string,
+  ) {
+    return this.invitationsService.findAll(eventId);
   }
 
   @Query(() => Invitation, { name: 'invitation' })

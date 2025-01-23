@@ -1,8 +1,11 @@
+import { IsNotEmpty, IsUUID } from 'class-validator';
 import { CreateGuestInput } from './create-guest.input';
-import { InputType, Field, Int, PartialType } from '@nestjs/graphql';
+import { InputType, Field, PartialType, ID } from '@nestjs/graphql';
 
 @InputType()
 export class UpdateGuestInput extends PartialType(CreateGuestInput) {
-  @Field(() => Int)
-  id: number;
+  @Field(() => ID)
+  @IsUUID()
+  @IsNotEmpty()
+  id: string;
 }

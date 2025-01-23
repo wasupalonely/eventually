@@ -1,12 +1,13 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { GuestsService } from './guests.service';
 import { Guest } from './entities/guest.entity';
 import { CreateGuestInput } from './dto/create-guest.input';
 import { UpdateGuestInput } from './dto/update-guest.input';
-import { UseGuards } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from 'src/shared/guards/gql-auth.guard';
 import { GqlCurrentUser } from 'src/shared/decorators/gql-current-user.decorator';
 import { User } from 'src/users/entities/user.entity';
+import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
 
 @Resolver(() => Guest)
 @UseGuards(GqlAuthGuard)
@@ -22,12 +23,17 @@ export class GuestsResolver {
   }
 
   @Query(() => [Guest], { name: 'guests' })
-  findAll() {
+  findAll(@GqlCurrentUser([ValidRoles.admin]) _: User) {
     return this.guestsService.findAll();
   }
 
+  @Query(() => [Guest], { name: 'myGuests' })
+  findAllByUser(@GqlCurrentUser() user: User) {
+    return this.guestsService.findAllByUser(user);
+  }
+
   @Query(() => Guest, { name: 'guest' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
+  findOne(@Args('id', { type: () => ID }, ParseUUIDPipe) id: string) {
     return this.guestsService.findOne(id);
   }
 
@@ -37,7 +43,7 @@ export class GuestsResolver {
   }
 
   @Mutation(() => Guest)
-  removeGuest(@Args('id', { type: () => Int }) id: number) {
+  removeGuest(@Args('id', { type: () => ID }, ParseUUIDPipe) id: string) {
     return this.guestsService.remove(id);
   }
 }

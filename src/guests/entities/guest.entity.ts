@@ -21,7 +21,7 @@ export class Guest {
   name: string;
 
   @Field(() => String, { nullable: true })
-  @Column({ nullable: true })
+  @Column({ nullable: true, unique: true })
   email?: string;
 
   @Field(() => String, { nullable: true })
@@ -33,7 +33,10 @@ export class Guest {
   invitations: Invitation[];
 
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.guests, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.guests, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
   createdBy: User;
 
   @Field(() => Date)

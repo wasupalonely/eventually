@@ -18,11 +18,17 @@ export class Invitation {
   id: string;
 
   @Field(() => Event)
-  @ManyToOne(() => Event, (event) => event.invitations, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Event, (event) => event.invitations, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
   event: Event;
 
   @Field(() => Guest)
-  @ManyToOne(() => Guest, (guest) => guest.invitations, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Guest, (guest) => guest.invitations, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
   guest: Guest;
 
   @Field(() => InvitationStatus, { defaultValue: InvitationStatus.PENDING })
