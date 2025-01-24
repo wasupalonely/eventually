@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { GuestsModule } from './guests/guests.module';
 import { InvitationsModule } from './invitations/invitations.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   providers: [],
@@ -43,6 +44,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     GuestsModule,
     InvitationsModule,
     NotificationsModule,
+    CloudinaryModule,
   ],
   controllers: [],
 })

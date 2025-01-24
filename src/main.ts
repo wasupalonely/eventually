@@ -1,5 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import * as moment from 'moment';
+import 'moment/locale/es';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -11,6 +13,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
+  moment.locale('es');
 
   await app.listen(process.env.PORT ?? 3000);
 }

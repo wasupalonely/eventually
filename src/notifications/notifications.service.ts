@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { TwilioService } from './twilio.service';
 import { SendgridService } from './sendgrid.service';
-import { SendWhatsAppMessageDto } from './dto';
+import { SendEmailMessageDto, SendWhatsAppMessageDto } from './dto';
 
 @Injectable()
 export class NotificationsService {
@@ -14,7 +14,7 @@ export class NotificationsService {
     return this.twilioService.sendWhatsApp(sendWhatsAppMessageDto);
   }
 
-  async sendEmail(to: string, subject: string, html: string) {
-    return this.sendgridService.sendEmail(to, subject, html);
+  async sendEmail(sendEmailMessageDto: SendEmailMessageDto) {
+    return this.sendgridService.sendEmail(sendEmailMessageDto);
   }
 }

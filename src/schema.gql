@@ -69,6 +69,11 @@ enum EventType {
   HYBRID
 }
 
+type SendInvitationsResponse {
+  eventId: String!
+  notifiedGuests: [String!]!
+}
+
 type Query {
   events(eventType: EventType): [Event!]!
   eventsByUser(eventType: EventType): [Event!]!
@@ -96,6 +101,7 @@ type Mutation {
   updateGuest(updateGuestInput: UpdateGuestInput!): Guest!
   removeGuest(id: ID!): Guest!
   createInvitation(createInvitationInput: CreateInvitationInput!): Invitation!
+  sendInvitations(sendInvitationInput: SendInvitationInput!): SendInvitationsResponse!
   updateInvitation(updateInvitationInput: UpdateInvitationInput!): Invitation!
   removeInvitation(id: ID!): Invitation!
 }
@@ -149,6 +155,16 @@ input UpdateGuestInput {
 input CreateInvitationInput {
   eventId: String!
   guestId: String!
+}
+
+input SendInvitationInput {
+  """
+  Guest IDs to send invitations (If is not sent will sen d invitation to every person invitated in that event)
+  """
+  guestIds: [String!]
+
+  """Event ID"""
+  eventId: String!
 }
 
 input UpdateInvitationInput {
