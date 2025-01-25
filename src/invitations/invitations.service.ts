@@ -29,6 +29,7 @@ import { EventType } from 'src/events/enums/event-type.enum';
 import { Guest } from 'src/guests/entities/guest.entity';
 import { Event } from 'src/events/entities/event.entity';
 import { generateEmailHtml } from './utils/templates/html.template';
+import { AcceptDeclineInvitationInput } from './dto/inputs/accept-decline-invitation.input';
 
 @Injectable()
 export class InvitationsService {
@@ -54,7 +55,7 @@ export class InvitationsService {
         throw new BadRequestException('Evento o invitado no encontrado');
       }
 
-      const confirmationUrl = `${process.env.CLIENT_URL}/confirm-invitation/${guestId}`;
+      const confirmationUrl = `${process.env.CLIENT_URL}/confirm-invitation/${event.id}/${guestId}`;
 
       const qrCodeUrl = await QRCode.toDataURL(confirmationUrl);
 
@@ -80,6 +81,12 @@ export class InvitationsService {
     sendInvitationInput: SendInvitationInput,
   ): Promise<SendInvitationsResponse> {
     const event = await this.eventsService.findOne(sendInvitationInput.eventId);
+
+    if (event.startDate < new Date())
+      throw new BadRequestException(
+        'No puedes enviar invitaciones a eventos que ya han pasado',
+      );
+
     const notifiedGuests: string[] = [];
 
     if (sendInvitationInput.guestIds) {
@@ -168,6 +175,30 @@ Escanea el código QR adjunto o confirma tu asistencia aquí: ${invitation.confi
 
       await this.notificationsService.sendWhatsAppMessage(message);
     }
+  }
+
+  async acceptOrDeclineInvitation({
+    eventId,
+    guestId,
+    invitationStatus,
+  }: AcceptDeclineInvitationInput): Promise<Invitation> {
+    const invitation = await this.invitationRepository.findOneBy({
+      event: { id: eventId },
+      guest: { id: guestId },
+    });
+
+    if (!invitation) {
+      throw new BadRequestException('Invitación no encontrada');
+    }
+
+    if (invitation.expirationDate < new Date()) {
+      throw new BadRequestException('La invitación ha expirado');
+    }
+
+    invitation.invitationStatus = invitationStatus;
+    invitation.responseDate = new Date();
+
+    return await this.invitationRepository.save(invitation);
   }
 
   async findAll(eventId?: string): Promise<Invitation[]> {

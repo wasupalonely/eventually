@@ -47,6 +47,10 @@ export class Invitation {
   @Column()
   confirmationUrl: string;
 
+  @Field(() => Date, { nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
+  responseDate?: Date;
+
   @Field(() => Date)
   @CreateDateColumn()
   createdAt: Date;

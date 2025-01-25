@@ -9,6 +9,7 @@ import {
   UpdateInvitationInput,
 } from './dto/inputs';
 import { GqlAuthGuard } from 'src/shared/guards/gql-auth.guard';
+import { AcceptDeclineInvitationInput } from './dto/inputs/accept-decline-invitation.input';
 
 @Resolver(() => Invitation)
 @UseGuards(GqlAuthGuard)
@@ -27,6 +28,16 @@ export class InvitationsResolver {
     @Args('sendInvitationInput') sendInvitationInput: SendInvitationInput,
   ): Promise<SendInvitationsResponse> {
     return this.invitationsService.sendInvitations(sendInvitationInput);
+  }
+
+  @Mutation(() => Invitation, { name: 'acceptOrDeclineInvitation' })
+  async acceptOrDeclineInvitation(
+    @Args('acceptDeclineInvitationInput')
+    acceptDeclineInvitationInput: AcceptDeclineInvitationInput,
+  ) {
+    return this.invitationsService.acceptOrDeclineInvitation(
+      acceptDeclineInvitationInput,
+    );
   }
 
   @Query(() => [Invitation], { name: 'invitations' })
